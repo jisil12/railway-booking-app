@@ -35,7 +35,7 @@ export default function BookingsPage() {
           console.error("Error fetching bookings:", error);
           toast({
             title: "Error",
-            description: "Failed to fetch booking history ",
+            description: "Failed to fetch booking history",
             variant: "destructive",
           });
         } finally {
