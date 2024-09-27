@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from 'next-auth/react';
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, sendSignInLinkToEmail } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "@/app/lib/firebase"; // Make sure this path is correct
+import { firebaseConfig } from "@/app/lib/firebase";
 import { useRouter } from 'next/navigation';
 
 // Initialize Firebase
@@ -45,16 +45,11 @@ export default function LoginForm() {
     e.preventDefault();
     setLoading(true);
     try {
-      const result = await signIn("credentials", {
-        email,
-        type: "email",
-        callbackUrl: "/booking",
-        redirect: false,
-      });
-
-      if (result.error) {
-        throw new Error(result.error);
-      }
+      const actionCodeSettings = {
+        url: `${window.location.origin}/login?email=${email}`,
+        handleCodeInApp: true,
+      };
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
 
       localStorage.setItem("emailForSignIn", email);
       toast({
@@ -204,8 +199,8 @@ export default function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <Button type="submit" className="w-full">
-                Send Login Link
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Sending..." : "Send Login Link"}
               </Button>
             </form>
           </TabsContent>
