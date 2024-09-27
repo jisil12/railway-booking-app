@@ -1,18 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 import LoginForm from "@/app/components/LoginForm";
 import LoadingSpinner from '@/app/components/LoadingSpinner';
 
-export default function LoginClient() {
-  const searchParams = useSearchParams();
+function LoginClientContent() {
+  const [searchParams, setSearchParams] = useState(null);
   const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setSearchParams(new URLSearchParams(window.location.search));
+    }
+  }, []);
+
+  useEffect(() => {
     const handleEmailSignIn = async () => {
+      if (!searchParams) return;
+
       const apiKey = searchParams.get("apiKey");
       const oobCode = searchParams.get("oobCode");
       const mode = searchParams.get("mode");
@@ -53,9 +61,17 @@ export default function LoginClient() {
     }
   }, [status, router]);
 
-  if (status === "loading") {
+  if (status === "loading" || !searchParams) {
     return <LoadingSpinner />;
   }
 
   return <LoginForm />;
+}
+
+export default function LoginClient() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <LoginClientContent />
+    </Suspense>
+  );
 }

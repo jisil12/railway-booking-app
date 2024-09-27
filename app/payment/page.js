@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { db } from '@/app/lib/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import LoadingSpinner from '@/app/components/LoadingSpinner';
 
-export default function PaymentPage() {
+function PaymentPageContent() {
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState('');
   const [cardNumber, setCardNumber] = useState('');
@@ -172,5 +172,13 @@ export default function PaymentPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <PaymentPageContent />
+    </Suspense>
   );
 }

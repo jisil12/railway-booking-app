@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +18,7 @@ export default function BookingSuccessPage() {
   const { data: session, status } = useSession();
   const { toast } = useToast();
 
-  const orderId = searchParams.get('order_id');
+  const orderId = searchParams ? searchParams.get('order_id') : null;
 
   useEffect(() => {
     const fetchBooking = async () => {
